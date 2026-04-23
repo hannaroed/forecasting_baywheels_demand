@@ -65,6 +65,7 @@ class SarimaxForecaster:
             exog=exog,
             order=self.config.arima_order,
             seasonal_order=self.config.arima_seasonal_order,
+            trend="c",
             enforce_stationarity=False,
             enforce_invertibility=False,
         )

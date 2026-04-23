@@ -102,12 +102,37 @@ def select_feature_columns(frame: pd.DataFrame) -> dict[str, list[str]]:
         or column.startswith("daily_")
         or column.startswith("weekly_")
     ]
+    seasonal_columns = [column for column in frame.columns if column.startswith("daily_") or column.startswith("weekly_")]
+    sarimax_calendar_columns = [
+        column
+        for column in (
+            "is_weekend",
+            "is_peak_commute",
+            "is_holiday",
+        )
+        if column in frame.columns
+    ] + seasonal_columns
+
     weather_columns = [column for column in frame.columns if column.startswith("lag_weather_") or column.startswith("interaction_")]
+    sarimax_weather_columns = [
+        column
+        for column in (
+            "lag_weather_temperature_lag_1",
+            "lag_weather_temperature_lag_24",
+            "lag_weather_precipitation_lag_1",
+            "lag_weather_precipitation_lag_24",
+            "lag_weather_wind_speed_lag_1",
+            "lag_weather_wind_speed_lag_24",
+            "interaction_precip_peak",
+            "interaction_temp_peak",
+        )
+        if column in frame.columns
+    ]
     autoregressive_columns = [column for column in frame.columns if column.startswith("lag_target_transformed_")]
 
     return {
-        "sarimax_baseline": calendar_columns,
-        "sarimax_weather": calendar_columns + weather_columns,
+        "sarimax_baseline": sarimax_calendar_columns,
+        "sarimax_weather": sarimax_calendar_columns + sarimax_weather_columns,
         "elastic_net_baseline": autoregressive_columns + calendar_columns,
         "elastic_net_full": autoregressive_columns + calendar_columns + weather_columns,
     }
